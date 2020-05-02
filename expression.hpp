@@ -1,11 +1,13 @@
 // TODO:
 // use shared_ptr and weak_ptr
 // encapsulatation of pri, repr, val...
-#ifndef _DSA_EXPRESSION_H_
-#define _DSA_EXPRESSION_H_ 1
+#ifndef _DSA_EXPRESSION_HPP_
+#define _DSA_EXPRESSION_HPP_ 1
 
 #include <string>
 #include <vector>
+
+enum Associativity { LEFT, RIGHT, NONE };
 
 template <typename T>
 class Node
@@ -24,11 +26,11 @@ public:
     explicit Operator(int priority,
                       const std::string& representation,
                       int num_operands = 2,
-                      bool left_associative = true)
+                      Associativity associativity = LEFT)
         : pri(priority),
           repr(representation),
           operands(num_operands),
-          l_assoc(left_associative)
+          assoc(associativity)
     {
     }
 
@@ -41,11 +43,14 @@ public:
         return repr;
     }
 
-    int pri;           // priority, LOWER is prior
-    std::string repr;  // representation when printed out
+    int pri;           // priority, LOWER is prior, >= 0
+    std::string repr;  // representation when printed out or parsed
     int operands;      // unary: 1, binary: 2
-    bool l_assoc;      // true: left-associative, false: right-associative
-    std::function<T(T, T)> apply;  // for unary, second parameter is ignored
+    Associativity assoc;
+
+    // for unary, second parameter is ignored
+    // TODO: support more than 2 parameters
+    std::function<T(T, T)> apply;
 };
 
 

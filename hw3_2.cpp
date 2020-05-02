@@ -5,7 +5,7 @@
 
 int main()
 {
-    IntParser<int> parser;
+    FloatParser<double> parser;
     std::string line;
     while (std::getline(std::cin, line)) {
         parser.parse_infix(line);

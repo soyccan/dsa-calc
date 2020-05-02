@@ -1,5 +1,5 @@
-#ifndef _DSA_PARSER_H_
-#define _DSA_PARSER_H_ 1
+#ifndef _DSA_PARSER_HPP_
+#define _DSA_PARSER_HPP_ 1
 
 #include <stdexcept>
 #include <string>
@@ -23,8 +23,9 @@ public:
                                // non-right-parenthesis operator
         size_t i = 0;
         while (i < str.size()) {
+            // operand
             bufn = 0;
-            while (isdigit(str[i]) && i < str.size()) {
+            while (__is_value(str[i]) && i < str.size()) {
                 buf[bufn++] = str[i];
                 i++;
             }
@@ -38,45 +39,52 @@ public:
             if (i == str.size())
                 break;
 
+            // operator
             Operator<T>* newop = NULL;
+            Operator<T>* newop2 = NULL;
             if (str[i] == '(') {
                 newop = _operator_list->LPAR;
-                last_op = true;
             } else if (str[i] == ')') {
                 newop = _operator_list->RPAR;
-            } else if (i == 0 || last_op) {
-                // unary
+            } else if (str[i] == ',') {
+                newop = _operator_list->RPAR;
+                newop2 = _operator_list->LPAR;
+            } else if ((i == 0 || last_op) &&
+                       (str[i] == '+' || str[i] == '-')) {
+                // handle ambiguous unary + and -
                 if (str[i] == '+') {
                     newop = _operator_list->PLUS;
-                } else if (str[i] == '-') {
-                    newop = _operator_list->MINUS;
-                } else if (str[i] == '!') {
-                    newop = _operator_list->LNOT;
-                } else if (str[i] == '~') {
-                    newop = _operator_list->NOT;
                 } else {
-                    throw std::invalid_argument("invalid unary operator");
+                    newop = _operator_list->MINUS;
                 }
-                // LOG("push unary: %s") % *newop;
-                last_op = true;
             } else {
-                // binary
                 for (Operator<T>* op : _operator_list->members) {
-                    if (op->operands == 2 &&
+                    if (!(op->operands == 1 &&
+                          (op->repr == "+" || op->repr == "-")) &&
                         str.compare(i, op->repr.size(), op->repr) == 0) {
-                        // TODO:performance
-                        assert(newop == NULL);
+                        // skip unary + and -
+                        // TODO: performance on string comparison
+                        assert(newop == NULL);  // assert not matching multiple
+                                                // items in operator list
                         newop = op;
-                        last_op = true;
-                        // LOG("push binary: %s") % *newop;
                     }
                 }
             }
-            assert(newop != NULL);
+
+            if (!newop) {
+                throw std::invalid_argument("invalid operator");
+            }
+            LOG("op: %s", % *newop);
+
             __expr_infix.push_back(newop);
-            i += newop->repr.size();
+            if (newop2)
+                __expr_infix.push_back(newop2);
+
+            last_op = newop != _operator_list->RPAR;
+            i += newop->repr.size();  // NOTE: when char is ',' newop would be
+                                      // ')'. They happen to be of same length
         }
-        LOG("string:%s infix:%s") % str % __expr_infix;
+        LOG("string:%s infix:%s", % str % __expr_infix);
         return __expr_infix;
     }
 
@@ -130,7 +138,8 @@ public:
                     tmpn--;
                     __stack_status2(pop, tmp);
                 } else {
-                    while (tmpn > 0 && __is_prior(tmp[tmpn - 1], opt)) {
+                    while (tmpn > 0 && tmp[tmpn - 1] != _operator_list->LPAR &&
+                           __is_prior(tmp[tmpn - 1], opt)) {
                         final[finaln++] = tmp[tmpn - 1];
                         tmpn--;
                         __stack_status3(move, tmp_to_final, tmp[tmpn]);
@@ -158,7 +167,7 @@ public:
         FOR (size_t, i, 0, finaln) {
             __expr_postfix.push_back(final[i]);
         }
-        LOG("postfix: %s") % __expr_postfix;
+        LOG("postfix: %s", % __expr_postfix);
 
         delete[] final;
         delete[] tmp;
@@ -185,7 +194,7 @@ public:
                     stn--;
                 } else {
                     throw std::invalid_argument(
-                        "trinary operator is unsupported");
+                        "ultra-binary operator is unsupported");
                 }
             } else {
                 assert(opd != NULL);
@@ -209,32 +218,35 @@ protected:
     OperatorList<T>* _operator_list;
 
 private:
-    inline bool __is_prior(Operator<T>* left, Operator<T>* right)
+    static inline bool __is_prior(Operator<T>* left, Operator<T>* right)
     {
-        assert(right->pri >= 0);
-        if (left == _operator_list->LPAR) {
-            return false;
-        }
         assert(left->pri >= 0);
+        assert(right->pri >= 0);
 
-        if (left->pri < right->pri) {
-            return true;
-        } else if (left->pri == right->pri) {
-            if (left->l_assoc && right->l_assoc) {
-                return true;
-            } else {
-                assert(!left->l_assoc && !right->l_assoc);
-                return false;
-            }
+        if (left->pri != right->pri) {
+            return left->pri < right->pri;
         } else {
-            return false;
+            if (left->assoc == LEFT && right->assoc == LEFT) {
+                return true;
+            } else if (left->assoc == RIGHT && right->assoc == RIGHT) {
+                return false;
+            } else {
+                throw std::invalid_argument(
+                    "__is_prior() unknown assiciativity");
+            }
         }
+    }
+
+    static inline bool __is_value(char c)
+    {
+        return ('0' <= c && c <= '9') || c == '.';
     }
 
     Expression<T> __expr_infix, __expr_postfix;
 };
 
 
+/* IntParser */
 template <typename T>
 class IntParser : public Parser<T>
 {
@@ -253,7 +265,6 @@ protected:
     inline T _strtoval(std::string str) override;
 };
 
-
 template <>
 inline int IntParser<int>::_strtoval(const char* str)
 {
@@ -265,5 +276,40 @@ inline int IntParser<int>::_strtoval(std::string str)
 {
     return std::stoi(str);
 }
+/* end IntParser */
+
+
+
+/* FloatParser */
+template <typename T>
+class FloatParser : public Parser<T>
+{
+public:
+    FloatParser() { this->_init_operator_list(); }
+    ~FloatParser() { this->_destroy_operator_list(); }
+
+protected:
+    void _init_operator_list() override
+    {
+        this->_operator_list = new CFloatOperatorList<T>();
+    }
+    void _destroy_operator_list() override { delete this->_operator_list; }
+
+    inline T _strtoval(const char* str) override;
+    inline T _strtoval(std::string str) override;
+};
+
+template <>
+inline double FloatParser<double>::_strtoval(const char* str)
+{
+    return std::atof(str);
+}
+
+template <>
+inline double FloatParser<double>::_strtoval(std::string str)
+{
+    return std::stod(str);
+}
+/* end FloatParser */
 
 #endif

@@ -23,8 +23,8 @@
         exit(-1);                       \
     }
 
-#define LOG(fmt) std::cerr << boost::format(fmt "\n")
-#define LOGN(fmt) std::cerr << boost::format(fmt)
+#define LOG(fmt, ...) std::cerr << boost::format(fmt "\n") __VA_ARGS__
+#define LOGN(fmt, ...) std::cerr << boost::format(fmt) __VA_ARGS__
 
 #else
 #define G(expr) (expr)
