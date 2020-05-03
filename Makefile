@@ -1,5 +1,5 @@
 CXX := clang++
-CXXFLAGS := -Wall -Wextra -Wconversion -std=gnu++17
+CXXFLAGS := -Wall -Wextra -Wconversion -std=gnu++17 -O2
 LDFLAGS :=
 
 IWYU := /usr/local/bin/include-what-you-use # this will check correct includes
@@ -20,6 +20,10 @@ ifeq ($(IWYU), 1)
 	CXXFLAGS += $(IWYU-FLAGS)
 endif
 
+ifdef STACK
+	CXXFLAGS += -DSHOW_STACK
+endif
+
 ifndef DEBUG
 	DEBUG := 1
 endif
@@ -34,7 +38,12 @@ endif
 
 
 .PHONY: all clean
-all: $(GIT_HOOKS) hw3_1 hw3_2
+all:
+ifeq ($(shell hostname),soyccanmac.local)
+	$(MAKE) upload
+else
+	$(MAKE) $(TARGETS)
+endif
 
 $(GIT_HOOKS):
 	@scripts/install-git-hooks
@@ -49,8 +58,8 @@ $(OBJS): %.o: %.cpp
 $(PRECOMP-HDRS): %.hpp.gch: %.hpp
 	$(CXX) $(CXXFLAGS) -c -o $@ -MMD -MF .$@.d $<
 
-run: hw3_1
-	./hw3_1 < in.txt
+upload:
+	scp -P 9453 -r *.hpp *.h *.cpp test/ Makefile soyccan@bravo.nctu.me:/home/soyccan/Documents/dsa-hw3/
 
 clean:
 	rm -rf $(OBJS) $(deps) $(TARGETS)

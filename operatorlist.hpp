@@ -1,6 +1,7 @@
 #ifndef _DSA_OPERATORLIST_HPP_
 #define _DSA_OPERATORLIST_HPP_ 1
 
+#include <algorithm>
 #include <cmath>
 #include <functional>
 #include <vector>
@@ -140,7 +141,6 @@ protected:
         this->LOR->apply = [](T x, T y) { return x || y; };
 
 
-        // in priority order
         this->members.clear();
         this->members.push_back(this->LPAR);
         this->members.push_back(this->RPAR);
@@ -162,6 +162,10 @@ protected:
         this->members.push_back(this->OR);
         this->members.push_back(this->LAND);
         this->members.push_back(this->LOR);
+        std::sort(this->members.begin(), this->members.end(),
+                  [](const Operator<T>* x, const Operator<T>* y) {
+                      return x->repr.size() > y->repr.size();
+                  });  // longest first
     }
 
 private:
@@ -251,6 +255,10 @@ protected:
         this->members.push_back(this->MUL);
         this->members.push_back(this->ADD);
         this->members.push_back(this->SUB);
+        std::sort(this->members.begin(), this->members.end(),
+                  [](const Operator<T>* x, const Operator<T>* y) {
+                      return x->repr.size() > y->repr.size();
+                  });  // longest first
     }
 
 private:

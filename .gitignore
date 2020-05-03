@@ -14,3 +14,4 @@ hw3_2
 a.out
 in.txt
 tmp/
+*.dSYM

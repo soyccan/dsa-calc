@@ -1,6 +1,7 @@
 #ifndef _DSA_PARSER_HPP_
 #define _DSA_PARSER_HPP_ 1
 
+#include <cstdlib>
 #include <stdexcept>
 #include <string>
 
@@ -59,14 +60,14 @@ public:
                 }
             } else {
                 for (Operator<T>* op : _operator_list->members) {
+                    // op is sorted by longest repr first
                     if (!(op->operands == 1 &&
                           (op->repr == "+" || op->repr == "-")) &&
                         str.compare(i, op->repr.size(), op->repr) == 0) {
                         // skip unary + and -
                         // TODO: performance on string comparison
-                        assert(newop == NULL);  // assert not matching multiple
-                                                // items in operator list
                         newop = op;
+                        break;
                     }
                 }
             }
@@ -74,7 +75,7 @@ public:
             if (!newop) {
                 throw std::invalid_argument("invalid operator");
             }
-            LOG("op: %s", % *newop);
+            // LOG("op: %s", % *newop);
 
             __expr_infix.push_back(newop);
             if (newop2)
@@ -84,7 +85,7 @@ public:
             i += newop->repr.size();  // NOTE: when char is ',' newop would be
                                       // ')'. They happen to be of same length
         }
-        LOG("string:%s infix:%s", % str % __expr_infix);
+        LOG("  string: %s\n  infix: %s", % str % __expr_infix);
         return __expr_infix;
     }
 
@@ -94,31 +95,37 @@ public:
         Operator<T>** tmp = new Operator<T>*[__expr_infix.size()];
         size_t finaln = 0, tmpn = 0;
 
-#define __stack_show()                     \
-    {                                      \
-        std::cerr << "final:";             \
-        FOR (size_t, i, 0, finaln) {       \
-            std::cerr << *final[i] << ' '; \
-        }                                  \
-        std::cerr << "\t\t\ttmp:";         \
-        FOR (size_t, i, 0, tmpn) {         \
-            std::cerr << *tmp[i] << ' ';   \
-        }                                  \
-        std::cerr << "\n";                 \
+#ifdef SHOW_STACK
+#define __stack_show()                \
+    {                                 \
+        LOGN("final:");               \
+        FOR (size_t, i, 0, finaln) {  \
+            LOGN("%s ", % *final[i]); \
+        }                             \
+        LOGN("\t\t\ttmp:");           \
+        FOR (size_t, i, 0, tmpn) {    \
+            LOGN("%s ", % *tmp[i]);   \
+        }                             \
+        LOGN("");                     \
     }
-#define __stack_status3(action, stack, elem)                                 \
-    {                                                                        \
-        std::cerr << boost::format("%s-%s:%s\t") % #action % #stack % *elem; \
-        __stack_show();                                                      \
+#define __stack_status3(action, stack, elem)           \
+    {                                                  \
+        LOG("%s-%s:%s\t", % #action % #stack % *elem); \
+        __stack_show();                                \
     }
-#define __stack_status2(action, stack)                            \
-    {                                                             \
-        std::cerr << boost::format("%s-%s\t") % #action % #stack; \
-        __stack_show();                                           \
+#define __stack_status2(action, stack)      \
+    {                                       \
+        LOG("%s-%s\t", % #action % #stack); \
+        __stack_show();                     \
     }
+#else
+#define __stack_show()
+#define __stack_status3(action, stack, elem)
+#define __stack_status2(action, stack)
+#endif
 
         for (Node<T>* node : __expr_infix) {
-            std::cerr << boost::format("current:%s ") % *node;
+            // LOG("current:%s ", % *node);
 
             Operator<T>* opt = dynamic_cast<Operator<T>*>(node);
             Operand<T>* opd = dynamic_cast<Operand<T>*>(node);
@@ -167,7 +174,7 @@ public:
         FOR (size_t, i, 0, finaln) {
             __expr_postfix.push_back(final[i]);
         }
-        LOG("postfix: %s", % __expr_postfix);
+        LOG("  postfix: %s", % __expr_postfix);
 
         delete[] final;
         delete[] tmp;

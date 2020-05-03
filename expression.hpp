@@ -4,6 +4,8 @@
 #ifndef _DSA_EXPRESSION_HPP_
 #define _DSA_EXPRESSION_HPP_ 1
 
+#include <functional>
+#include <ostream>
 #include <string>
 #include <vector>
 
