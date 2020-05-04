@@ -1,90 +1,57 @@
-// TODO:
-// use shared_ptr and weak_ptr
-// encapsulatation of pri, repr, val...
 #ifndef _DSA_EXPRESSION_HPP_
 #define _DSA_EXPRESSION_HPP_ 1
 
-#include <functional>
 #include <ostream>
-#include <string>
 #include <vector>
 
-enum Associativity { LEFT, RIGHT, NONE };
+#include "node.hpp"
+#include "tools.h"
 
 template <typename T>
-class Node
+class Expression
 {
 public:
-    Node() {}
-    virtual ~Node() {}
-    virtual std::string str() const = 0;
-};
+    Expression() {}
+    ~Expression() { clear(); }
 
-template <typename T>
-class Operator : public Node<T>
-{
-public:
-    Operator() {}
-    explicit Operator(int priority,
-                      const std::string& representation,
-                      int num_operands = 2,
-                      Associativity associativity = LEFT)
-        : pri(priority),
-          repr(representation),
-          operands(num_operands),
-          assoc(associativity)
+    typename std::vector<std::shared_ptr<const Node<T>>>::const_iterator begin() const
     {
+        return __expr.cbegin();
+    }
+    typename std::vector<std::shared_ptr<const Node<T>>>::const_iterator end() const
+    {
+        return __expr.cend();
     }
 
-    std::string str() const override
+    void clear() noexcept { __expr.clear(); }
+
+    size_t size() const { return __expr.size(); }
+
+    void push_back(std::shared_ptr<const Node<T>>&& node) { __expr.push_back(node); }
+    void push_back(const std::shared_ptr<const Node<T>>& node) { __expr.push_back(node); }
+
+    void push_back_operand(T value)
     {
-#ifndef NDEBUG
-        if (operands == 1)
-            return "u" + repr;
-#endif
-        return repr;
+        auto opd = std::make_shared<const Operand<T>>(value);
+        LOG("  push value: %s", % *opd);
+        __expr.push_back(opd);
     }
 
-    int pri;           // priority, LOWER is prior, >= 0
-    std::string repr;  // representation when printed out or parsed
-    int operands;      // unary: 1, binary: 2
-    Associativity assoc;
+    void push_back_operator(std::shared_ptr<const Operator<T>> opt)
+    {
+        LOG("  push op: %s", % *opt);
+        __expr.push_back(opt);
+    }
 
-    // for unary, second parameter is ignored
-    // TODO: support more than 2 parameters
-    std::function<T(T, T)> apply;
+private:
+    std::vector<std::shared_ptr<const Node<T>>> __expr;
 };
 
-
-template <typename T>
-class Operand : public Node<T>
-{
-public:
-    Operand() {}
-    explicit Operand(T value) : val(value) {}
-
-    std::string str() const override { return std::to_string(val); }
-
-    T val;  // value
-};
-
-
-template <typename T>
-using Expression = std::vector<Node<T>*>;
-
-
-
-template <typename T>
-std::ostream& operator<<(std::ostream& os, const Node<T>& obj)
-{
-    os << obj.str();
-    return os;
-}
 
 template <typename T>
 std::ostream& operator<<(std::ostream& os, const Expression<T>& obj)
 {
-    for (Node<T>* node : obj) {
+    for (const std::shared_ptr<const Node<T>>& node : obj) {
         os << node->str() << ' ';
     }
     return os;

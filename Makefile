@@ -1,5 +1,5 @@
 CXX := clang++
-CXXFLAGS := -Wall -Wextra -Wconversion -std=gnu++17 -O2
+CXXFLAGS := -Wall -Wextra -Wconversion -std=gnu++17
 LDFLAGS :=
 
 IWYU := /usr/local/bin/include-what-you-use # this will check correct includes
@@ -8,7 +8,7 @@ IWYU-FLAGS := --check_also # flags for include-what-you-see
 GIT_HOOKS := .git/hooks/applied
 
 # header files and pre-compiled headers files
-HDRS := expression.hpp parser.hpp operatorlist.hpp
+HDRS := expression.hpp parser.hpp operatorlist.hpp node.hpp
 PRECOMP-HDRS := $(HDRS:%.hpp=%.hpp.gch)
 TARGETS := hw3_1 hw3_2
 OBJS := hw3_1.o hw3_2.o
@@ -33,7 +33,7 @@ ifeq ($(DEBUG), 1)
 
 	CXXFLAGS += -g
 else
-	CXXFLAGS += -DNDEBUG
+	CXXFLAGS += -DNDEBUG -O2
 endif
 
 

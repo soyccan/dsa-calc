@@ -21,8 +21,7 @@ char opt[][4] = {"+",  "-",  "*", "/",  "%",  "&", "^",  "|",
                  "<<", ">>", "~", "&&", "||", "!", "==", "!="};
 int optn = sizeof(opt) / sizeof(*opt);
 
-char opt2[][4] = {"+",   "-",   "*",   "sin",  "cos",
-                  "exp", "log", "pow", "sqrt", "fabs"};
+char opt2[][4] = {"+", "-", "*", "sin", "cos", "exp", "log", "pow", "sqrt", "fabs"};
 int opt2n = sizeof(opt2) / sizeof(*opt2);
 
 
@@ -101,11 +100,11 @@ void build2(struct node** pnd, int lv, double val)
             nd->w = randdbl(-1000, 1000);
         printf("%f", nd->w);
     } else {  // == 2
-        strcpy(nd->s, opt[rand() % optn]);
+        strcpy(nd->s, opt2[rand() % opt2n]);
 
         char c = nd->s[0];
         bool maybe = c == '+' || c == '-';
-        bool func = c == 's' || c == 'c' || c == 'e' || c == 'l' || c == 'f';
+        bool func = c == 's' || c == 'c' || c == 'e' || c == 'l' || c == 'f' || c == 'p';
 
         if (func) {
             // function
@@ -121,12 +120,7 @@ void build2(struct node** pnd, int lv, double val)
             nd->u = false;
             build2(&nd->l, lv + 1, 0);
             printf("%s", nd->s);
-
-            // make it less likely to overflow on shifting
-            int val = 0;
-            if (*nd->s == '<' || *nd->s == '>')
-                val = rand() % 7;
-            build2(&nd->r, lv + 1, val);
+            build2(&nd->r, lv + 1, 0);
         } else {
             // unary
             nd->u = true;
@@ -137,11 +131,14 @@ void build2(struct node** pnd, int lv, double val)
     b&& putchar(')');
 }
 
-int main()
+int main(int argc, char** argv)
 {
     struct timeval tv;
     gettimeofday(&tv, NULL);
     srand((tv.tv_sec & 2) + tv.tv_usec);
-    build2(&root, 0, 0);
+    if (argv[1][0] == '1')
+        build(&root, 0, 0);
+    else
+        build2(&root, 0, 0);
     return 0;
 }

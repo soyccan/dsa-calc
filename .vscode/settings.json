@@ -13,6 +13,7 @@
         "limits": "cpp",
         "streambuf": "cpp",
         "string_view": "cpp",
-        "variant": "cpp"
+        "variant": "cpp",
+        "memory": "cpp"
     }
 }

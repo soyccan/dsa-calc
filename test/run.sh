@@ -9,9 +9,15 @@ run_c() {
       echo ');}'; } | gcc -x c $cflags - 2>/dev/null && ./a.out
 }
 
-run_hw3() {
+run_hw3_1() {
     expr=$1
     res="$(echo $expr | ../hw3_1 2>/dev/null)"
+    [ $? = 0 ] && { echo "$res" | awk '{print $2}'; }
+}
+
+run_hw3_2() {
+    expr=$1
+    res="$(echo $expr | ../hw3_2 2>/dev/null)"
     [ $? = 0 ] && { echo "$res" | awk '{print $2}'; }
 }
 
@@ -19,13 +25,13 @@ gcc -o rand rand.c
 # make -C ..
 
 while true; do
-    expr=$(./rand)
+    expr=$(./rand $1)
     [ $? != 0 ] && continue
 
     out_c=$(run_c $expr)
     [ $? != 0 ] && continue
 
-    out_hw3=$(run_hw3 $expr)
+    [ "$1" = '1' ] && out_hw3=$(run_hw3_1 $expr) || out_hw3=$(run_hw3_2 $expr)
     [ $? != 0 ] && continue
 
     printf .
