@@ -40,8 +40,9 @@ public:
             }
             if (bufn > 0) {
                 buf[bufn] = '\0';
-                // TODO: is there better way than using "new" ?
-                __expr_infix.push_back_operand(_strtoval(buf));
+                // TODO: is there better way than using shared pointer?
+                __expr_infix.push_back(
+                    std::make_shared<const Operand<T>>(_strtoval(buf)));
                 last_op = false;
             }
 
@@ -55,6 +56,7 @@ public:
                 // e.g. pow(2,4) --> pow(2)(4)
                 newop = _operator_list.RPAR;
                 newop2 = _operator_list.LPAR;
+                last_op = true;
             } else if (i == 0 || last_op) {
                 // handle ambiguous unary + and -
                 if (str[i] == '+') {
@@ -62,6 +64,7 @@ public:
                 } else if (str[i] == '-') {
                     newop = _operator_list.MINUS;
                 }
+                last_op = true;
             }
 
             if (!newop) {
@@ -73,6 +76,7 @@ public:
                         // skip unary + and -
                         // TODO: performance on string comparison
                         newop = op;
+                        last_op = op != _operator_list.RPAR;
                         break;
                     }
                 }
@@ -82,11 +86,10 @@ public:
                 throw std::invalid_argument("invalid operator");
             }
 
-            __expr_infix.push_back_operator(newop);
+            __expr_infix.push_back(newop);
             if (newop2)
-                __expr_infix.push_back_operator(newop2);
+                __expr_infix.push_back(newop2);
 
-            last_op = newop != _operator_list.RPAR;
             i += newop->repr().size();  // NOTE: when char is ',' newop would be
                                         // ')'. They happen to be of same length
         }

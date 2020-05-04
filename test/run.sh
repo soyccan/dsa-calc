@@ -4,9 +4,9 @@ cflags='-Werror -Wno-constant-logical-operand'
 
 run_c() {
     expr=$1
-    { echo '#include <stdio.h>\nint main(){printf("%d",'
+    { echo '#include<stdio.h>\n#include<math.h>\nint main(){printf("%f",(double)'
       echo "$expr"
-      echo ');}'; } | gcc -x c $cflags - 2>/dev/null && ./a.out
+      echo ');}'; } | gcc -xc $cflags - -lm 2>/dev/null && ./a.out
 }
 
 run_hw3_1() {
@@ -31,11 +31,17 @@ while true; do
     out_c=$(run_c $expr)
     [ $? != 0 ] && continue
 
-    [ "$1" = '1' ] && out_hw3=$(run_hw3_1 $expr) || out_hw3=$(run_hw3_2 $expr)
+    if [ "$1" = '1' ]; then
+        out_hw3=$(run_hw3_1 $expr)
+    else
+        out_hw3=$(run_hw3_2 $expr)
+    fi
     [ $? != 0 ] && continue
 
     printf .
-    if [ "$out_c" != "$out_hw3" ]; then
+    if [ "$out_c" != "$out_hw3" ] \
+            && [ "$out_c" != -"$out_hw3" ] \
+            && [ -"$out_c" != "$out_hw3" ]; then
         echo
         echo Expression: $expr
         echo C outputs: $out_c

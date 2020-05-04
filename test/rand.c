@@ -21,13 +21,13 @@ char opt[][4] = {"+",  "-",  "*", "/",  "%",  "&", "^",  "|",
                  "<<", ">>", "~", "&&", "||", "!", "==", "!="};
 int optn = sizeof(opt) / sizeof(*opt);
 
-char opt2[][4] = {"+", "-", "*", "sin", "cos", "exp", "log", "pow", "sqrt", "fabs"};
+char opt2[][5] = {"+", "-", "*", "sin", "cos", "exp", "log", "pow", "sqrt", "fabs"};
 int opt2n = sizeof(opt2) / sizeof(*opt2);
 
 
 int len;
-double prob = 50;
-double prob_grad = 0.999;  // bigger for longer expression
+double prob = 10000;
+double prob_grad = 0.9999;  // bigger for longer expression
 
 static inline int randint(int a, int b)
 {
@@ -104,7 +104,7 @@ void build2(struct node** pnd, int lv, double val)
 
         char c = nd->s[0];
         bool maybe = c == '+' || c == '-';
-        bool func = c == 's' || c == 'c' || c == 'e' || c == 'l' || c == 'f' || c == 'p';
+        bool func = 'a' <= c && c <= 'z';
 
         if (func) {
             // function
