@@ -26,8 +26,8 @@ int opt2n = sizeof(opt2) / sizeof(*opt2);
 
 
 int len;
-double prob = 10000;
-double prob_grad = 0.9999;  // bigger for longer expression
+double prob = 10;
+double prob_grad = 0.8;  // bigger for longer expression
 
 static inline int randint(int a, int b)
 {
@@ -135,7 +135,7 @@ int main(int argc, char** argv)
 {
     struct timeval tv;
     gettimeofday(&tv, NULL);
-    srand((tv.tv_sec & 2) + tv.tv_usec);
+    srand(tv.tv_sec | (tv.tv_usec << 32));
     if (argv[1][0] == '1')
         build(&root, 0, 0);
     else

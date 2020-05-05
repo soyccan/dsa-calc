@@ -74,51 +74,58 @@ protected:
         this->_members.clear();
 
         p = 2;
-        this->_members.push_back(
-            this->MINUS = std::make_shared<Operator<T>>(p, "-", 1, Operator<T>::RIGHT));
-        this->_members.push_back(
-            this->PLUS = std::make_shared<Operator<T>>(p, "+", 1, Operator<T>::RIGHT));
-        this->_members.push_back(
-            this->NOT = std::make_shared<Operator<T>>(p, "~", 1, Operator<T>::RIGHT));
-        this->_members.push_back(
-            this->LNOT = std::make_shared<Operator<T>>(p, "!", 1, Operator<T>::RIGHT));
+        this->_members.push_back(this->MINUS = std::make_shared<const Operator<T>>(
+                                     p, "-", 1, Operator<T>::RIGHT));
+        this->_members.push_back(this->PLUS = std::make_shared<const Operator<T>>(
+                                     p, "+", 1, Operator<T>::RIGHT));
+        this->_members.push_back(this->NOT = std::make_shared<const Operator<T>>(
+                                     p, "~", 1, Operator<T>::RIGHT));
+        this->_members.push_back(this->LNOT = std::make_shared<const Operator<T>>(
+                                     p, "!", 1, Operator<T>::RIGHT));
 
         p = 3;
-        this->_members.push_back(this->MUL = std::make_shared<Operator<T>>(p, "*"));
-        this->_members.push_back(this->DIV = std::make_shared<Operator<T>>(p, "/"));
-        this->_members.push_back(this->MOD = std::make_shared<Operator<T>>(p, "%"));
+        this->_members.push_back(this->MUL = std::make_shared<const Operator<T>>(p, "*"));
+        this->_members.push_back(this->DIV = std::make_shared<const Operator<T>>(p, "/"));
+        this->_members.push_back(this->MOD = std::make_shared<const Operator<T>>(p, "%"));
 
         p = 4;
-        this->_members.push_back(this->ADD = std::make_shared<Operator<T>>(p, "+"));
-        this->_members.push_back(this->SUB = std::make_shared<Operator<T>>(p, "-"));
+        this->_members.push_back(this->ADD = std::make_shared<const Operator<T>>(p, "+"));
+        this->_members.push_back(this->SUB = std::make_shared<const Operator<T>>(p, "-"));
 
         p = 5;
-        this->_members.push_back(this->SHL = std::make_shared<Operator<T>>(p, "<<"));
-        this->_members.push_back(this->SHR = std::make_shared<Operator<T>>(p, ">>"));
+        this->_members.push_back(this->SHL =
+                                     std::make_shared<const Operator<T>>(p, "<<"));
+        this->_members.push_back(this->SHR =
+                                     std::make_shared<const Operator<T>>(p, ">>"));
 
         p = 7;
-        this->_members.push_back(this->EQ = std::make_shared<Operator<T>>(p, "=="));
-        this->_members.push_back(this->NEQ = std::make_shared<Operator<T>>(p, "!="));
+        this->_members.push_back(this->EQ = std::make_shared<const Operator<T>>(p, "=="));
+        this->_members.push_back(this->NEQ =
+                                     std::make_shared<const Operator<T>>(p, "!="));
 
         p = 8;
-        this->_members.push_back(this->AND = std::make_shared<Operator<T>>(p, "&"));
+        this->_members.push_back(this->AND = std::make_shared<const Operator<T>>(p, "&"));
 
         p = 9;
-        this->_members.push_back(this->XOR = std::make_shared<Operator<T>>(p, "^"));
+        this->_members.push_back(this->XOR = std::make_shared<const Operator<T>>(p, "^"));
 
         p = 10;
-        this->_members.push_back(this->OR = std::make_shared<Operator<T>>(p, "|"));
+        this->_members.push_back(this->OR = std::make_shared<const Operator<T>>(p, "|"));
 
         p = 11;
-        this->_members.push_back(this->LAND = std::make_shared<Operator<T>>(p, "&&"));
+        this->_members.push_back(this->LAND =
+                                     std::make_shared<const Operator<T>>(p, "&&"));
 
         p = 12;
-        this->_members.push_back(this->LOR = std::make_shared<Operator<T>>(p, "||"));
+        this->_members.push_back(this->LOR =
+                                     std::make_shared<const Operator<T>>(p, "||"));
 
         // special operators, not in postfix
         p = -1;
-        this->_members.push_back(this->LPAR = std::make_shared<Operator<T>>(p, "("));
-        this->_members.push_back(this->RPAR = std::make_shared<Operator<T>>(p, ")"));
+        this->_members.push_back(this->LPAR =
+                                     std::make_shared<const Operator<T>>(p, "("));
+        this->_members.push_back(this->RPAR =
+                                     std::make_shared<const Operator<T>>(p, ")"));
 
         // define functions
         std::const_pointer_cast<Operator<T>>(this->MINUS)->apply([](T x, T _) {
@@ -196,38 +203,40 @@ protected:
         this->_members.clear();
 
         p = 0;  // functions has highest priority
-        this->_members.push_back(
-            this->SIN = std::make_shared<Operator<T>>(p, "sin", 1, Operator<T>::RIGHT));
-        this->_members.push_back(
-            this->COS = std::make_shared<Operator<T>>(p, "cos", 1, Operator<T>::RIGHT));
-        this->_members.push_back(
-            this->EXP = std::make_shared<Operator<T>>(p, "exp", 1, Operator<T>::RIGHT));
-        this->_members.push_back(
-            this->LOG = std::make_shared<Operator<T>>(p, "log", 1, Operator<T>::RIGHT));
-        this->_members.push_back(
-            this->POW = std::make_shared<Operator<T>>(p, "pow", 2, Operator<T>::RIGHT));
-        this->_members.push_back(
-            this->SQRT = std::make_shared<Operator<T>>(p, "sqrt", 1, Operator<T>::RIGHT));
-        this->_members.push_back(
-            this->ABS = std::make_shared<Operator<T>>(p, "fabs", 1, Operator<T>::RIGHT));
+        this->_members.push_back(this->SIN = std::make_shared<const Operator<T>>(
+                                     p, "sin", 1, Operator<T>::RIGHT));
+        this->_members.push_back(this->COS = std::make_shared<const Operator<T>>(
+                                     p, "cos", 1, Operator<T>::RIGHT));
+        this->_members.push_back(this->EXP = std::make_shared<const Operator<T>>(
+                                     p, "exp", 1, Operator<T>::RIGHT));
+        this->_members.push_back(this->LOG = std::make_shared<const Operator<T>>(
+                                     p, "log", 1, Operator<T>::RIGHT));
+        this->_members.push_back(this->POW = std::make_shared<const Operator<T>>(
+                                     p, "pow", 2, Operator<T>::RIGHT));
+        this->_members.push_back(this->SQRT = std::make_shared<const Operator<T>>(
+                                     p, "sqrt", 1, Operator<T>::RIGHT));
+        this->_members.push_back(this->ABS = std::make_shared<const Operator<T>>(
+                                     p, "fabs", 1, Operator<T>::RIGHT));
 
         p = 2;
-        this->_members.push_back(
-            this->MINUS = std::make_shared<Operator<T>>(p, "-", 1, Operator<T>::RIGHT));
-        this->_members.push_back(
-            this->PLUS = std::make_shared<Operator<T>>(p, "+", 1, Operator<T>::RIGHT));
+        this->_members.push_back(this->MINUS = std::make_shared<const Operator<T>>(
+                                     p, "-", 1, Operator<T>::RIGHT));
+        this->_members.push_back(this->PLUS = std::make_shared<const Operator<T>>(
+                                     p, "+", 1, Operator<T>::RIGHT));
 
         p = 3;
-        this->_members.push_back(this->MUL = std::make_shared<Operator<T>>(p, "*"));
+        this->_members.push_back(this->MUL = std::make_shared<const Operator<T>>(p, "*"));
 
         p = 4;
-        this->_members.push_back(this->ADD = std::make_shared<Operator<T>>(p, "+"));
-        this->_members.push_back(this->SUB = std::make_shared<Operator<T>>(p, "-"));
+        this->_members.push_back(this->ADD = std::make_shared<const Operator<T>>(p, "+"));
+        this->_members.push_back(this->SUB = std::make_shared<const Operator<T>>(p, "-"));
 
         // special operators, not in postfix
         p = -1;
-        this->_members.push_back(this->LPAR = std::make_shared<Operator<T>>(p, "("));
-        this->_members.push_back(this->RPAR = std::make_shared<Operator<T>>(p, ")"));
+        this->_members.push_back(this->LPAR =
+                                     std::make_shared<const Operator<T>>(p, "("));
+        this->_members.push_back(this->RPAR =
+                                     std::make_shared<const Operator<T>>(p, ")"));
 
 
         // define functions
