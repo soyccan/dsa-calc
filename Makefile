@@ -25,7 +25,7 @@ ifdef STACK
 endif
 
 ifndef DEBUG
-	DEBUG := 1
+	DEBUG := 0
 endif
 ifeq ($(DEBUG), 1)
 	# C++ boost
@@ -38,12 +38,7 @@ endif
 
 
 .PHONY: all clean
-all:
-ifeq ($(shell hostname),soyccanmac.local)
-	$(MAKE) upload
-else
-	$(MAKE) $(TARGETS)
-endif
+all: hw3_1 hw3_2
 
 $(GIT_HOOKS):
 	@scripts/install-git-hooks

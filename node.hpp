@@ -3,6 +3,7 @@
 
 #include <functional>
 #include <ostream>
+#include <sstream>
 #include <string>
 #include <vector>
 
@@ -27,12 +28,18 @@ public:
              std::string&& representation,
              int num_operands = 2,
              Associativity associativity = LEFT)
-        : __pri(priority), __repr(representation), __operands(num_operands), __assoc(associativity)
+        : __pri(priority),
+          __repr(representation),
+          __operands(num_operands),
+          __assoc(associativity)
     {
     }
 
     // setter
-    const std::function<T(T, T)>& apply(std::function<T(T, T)>&& apply) { return __apply = apply; }
+    const std::function<T(T, T)>& apply(std::function<T(T, T)>&& apply)
+    {
+        return __apply = apply;
+    }
 
     // getter
     int pri() const { return __pri; }
@@ -69,7 +76,12 @@ public:
     Operand() {}
     Operand(T value) : val(value) {}
 
-    std::string str() const override { return std::to_string(val); }
+    std::string str() const override
+    {
+        std::ostringstream os;
+        os << val;
+        return os.str();
+    }
 
     T val;  // value
 };

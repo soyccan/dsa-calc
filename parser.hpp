@@ -113,21 +113,19 @@ public:
         FOR (size_t, i, 0, finaln) {  \
             LOGN("%s ", % *final[i]); \
         }                             \
-        LOGN("\t\t\ttmp:");           \
+        LOGN("\t\t\t\t\t\t\t\ttmp:"); \
         FOR (size_t, i, 0, tmpn) {    \
             LOGN("%s ", % *tmp[i]);   \
         }                             \
-        LOGN("");                     \
+        LOG("");                      \
     }
-#define __stack_status3(action, stack, elem)           \
-    {                                                  \
-        LOG("%s-%s:%s\t", % #action % #stack % *elem); \
-        __stack_show();                                \
+#define __stack_status3(action, stack, elem) \
+    {                                        \
+        __stack_show();                      \
     }
-#define __stack_status2(action, stack)      \
-    {                                       \
-        LOG("%s-%s\t", % #action % #stack); \
-        __stack_show();                     \
+#define __stack_status2(action, stack) \
+    {                                  \
+        __stack_show();                \
     }
 #else
 #define __stack_show()
